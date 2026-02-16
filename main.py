@@ -39,17 +39,19 @@ def is_problematic_po(po):
     if po is None:
         return False
 
-    # Split on hyphens
-    parts = po.split("-")
-
-    # Must have at least 3 hyphen-separated parts
-    if len(parts) < 3:
+    # Must contain at least one hyphen
+    if "-" not in po:
         return False
 
-    # If ANY segment is alphabetic-only, it's dangerous
-    for p in parts:
-        if p.isalpha():
-            return True
+    parts = po.split("-")
+
+    # If the segment after the first hyphen starts with a digit → BAD
+    if len(parts) >= 2 and parts[1] and parts[1][0].isdigit():
+        return True
+
+    # Special case: numeric prefix + hyphen + alpha segment (e.g., 89673-NP-...)
+    if parts[0].isdigit() and len(parts) >= 2 and parts[1].isalpha():
+        return True
 
     return False
 
