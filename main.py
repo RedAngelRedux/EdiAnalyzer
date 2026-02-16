@@ -67,10 +67,13 @@ def is_problematic_po(po):
 
 def main():
     print("Enter the path to the EDI text file:")
-    path = input("> ").strip()
+    input_path = input("> ").strip()
+
+    print("Enter the path for the output report file:")
+    output_path = input("> ").strip()
 
     try:
-        with open(path, "r", encoding="utf-8") as f:
+        with open(input_path, "r", encoding="utf-8") as f:
             lines = f.readlines()
     except Exception as e:
         print(f"Error reading file: {e}")
@@ -80,17 +83,34 @@ def main():
 
     print(f"\nFound {len(records)} records. Scanning for potential problems...\n")
 
+    flagged = []
+
     for idx, record in enumerate(records, start=1):
         po = find_po_value(record)
         if is_problematic_po(po):
-            print(f"⚠️  Potential Problem in Record #{idx}")
-            print(f"    PO Value: {po}")
-            print("    Record Snippet:")
-            for line in record:
-                print("       " + line)
-            print()
+            flagged.append((idx, po, record))
 
-    print("Scan complete.")
+    # Write results to output file
+    try:
+        with open(output_path, "w", encoding="utf-8") as out:
+            out.write("EDI Problem Record Report\n")
+            out.write("=========================\n\n")
+
+            if not flagged:
+                out.write("No problematic records detected.\n")
+            else:
+                for idx, po, record in flagged:
+                    out.write(f"Record #{idx}\n")
+                    out.write(f"PO Value: {po}\n")
+                    out.write("Record Lines:\n")
+                    for line in record:
+                        out.write("  " + line + "\n")
+                    out.write("\n")
+
+        print(f"Scan complete. Results written to:\n{output_path}")
+
+    except Exception as e:
+        print(f"Error writing output file: {e}")
 
 
 if __name__ == "__main__":
