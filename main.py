@@ -36,34 +36,22 @@ def find_po_value(record):
 
 
 def is_problematic_po(po):
-    """
-    Applies multiple heuristics to detect dangerous PO values.
-    """
     if po is None:
         return False
 
-    # Rule 1: Starts with PO-
-    if po.startswith("PO-"):
-        return True
+    # Split on hyphens
+    parts = po.split("-")
 
-    # Rule 2: Contains multiple hyphens with trailing letters
-    if re.match(r".+-\d+-[A-Za-z]+$", po):
-        return True
+    # Must have at least 2 hyphen-separated parts
+    if len(parts) < 2:
+        return False
 
-    # Rule 3: Contains spaces
-    if " " in po:
-        return True
-
-    # Rule 4: Too long
-    if len(po) > 20:
-        return True
-
-    # Rule 5: Contains characters outside safe set
-    if not re.match(r"^[A-Za-z0-9\-/]+$", po):
-        return True
+    # If ANY segment is alphabetic-only, it's dangerous
+    for p in parts:
+        if p.isalpha():
+            return True
 
     return False
-
 
 def main():
     print("Enter the path to the EDI text file:")
