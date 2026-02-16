@@ -42,8 +42,8 @@ def is_problematic_po(po):
     # Split on hyphens
     parts = po.split("-")
 
-    # Must have at least 2 hyphen-separated parts
-    if len(parts) < 2:
+    # Must have at least 3 hyphen-separated parts
+    if len(parts) < 3:
         return False
 
     # If ANY segment is alphabetic-only, it's dangerous
